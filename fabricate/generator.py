@@ -1,5 +1,5 @@
 """
-Code generation using Anthropic's Claude API.
+Code generation using Google's Gemini 3.1 Pro API.
 """
 
 import json
@@ -7,7 +7,7 @@ import random
 from typing import Optional
 from dataclasses import dataclass
 
-import anthropic
+import google.generativeai as genai
 from rich.console import Console
 
 from .config import LANGUAGE_CONFIGS, COMPLEXITY_PROFILES, PROJECT_CATEGORIES
@@ -42,24 +42,27 @@ class GeneratedRepo:
 
 
 class CodeGenerator:
-    """Generates code and repository content using Claude."""
+    """Generates code and repository content using Gemini 3.1 Pro."""
     
-    def __init__(self, api_key: str, model: str = "claude-opus-4-5-20251101"):
-        self.client = anthropic.Anthropic(api_key=api_key)
+    def __init__(self, api_key: str, model: str = "gemini-3.1-pro-preview"):
+        genai.configure(api_key=api_key)
+        self.client = genai.GenerativeModel(model)
         self.model = model
         
-    def _call_claude(self, system: str, user: str, max_tokens: int = 4096) -> str:
-        """Make a call to Claude API."""
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=max_tokens,
-            system=system,
-            messages=[{"role": "user", "content": user}]
+    def _call_gemini(self, system: str, user: str, max_tokens: int = 4096) -> str:
+        """Make a call to Gemini API."""
+        combined_prompt = f"{system}\n\n{user}"
+        response = self.client.generate_content(
+            combined_prompt,
+            generation_config=genai.types.GenerationConfig(
+                max_output_tokens=max_tokens,
+                temperature=0.7,
+            )
         )
-        return response.content[0].text
+        return response.text
     
     def _extract_json(self, response: str) -> dict:
-        """Extract JSON from Claude's response, handling various formats."""
+        """Extract JSON from Gemini's response, handling various formats."""
         if not response or not response.strip():
             raise ValueError("Empty response")
         
@@ -148,7 +151,7 @@ Respond with ONLY this JSON structure:
     "main_features": ["feature1", "feature2", "feature3"]
 }}"""
 
-        response = self._call_claude(system, user, max_tokens=500)
+        response = self._call_gemini(system, user, max_tokens=500)
         
         try:
             return self._extract_json(response)
@@ -215,7 +218,7 @@ IMPORTANT:
 - Make the code realistic and functional
 - Use proper formatting and indentation (use \\n for newlines, \\t for tabs)"""
 
-        response = self._call_claude(system, user, max_tokens=8000)
+        response = self._call_gemini(system, user, max_tokens=8000)
         
         try:
             data = self._extract_json(response)
@@ -368,7 +371,7 @@ IMPORTANT:
 - Use conventional commit message format
 - Content should be complete and valid {language} code"""
 
-        response = self._call_claude(system, user, max_tokens=6000)
+        response = self._call_gemini(system, user, max_tokens=6000)
         
         try:
             data = self._extract_json(response)
@@ -455,4 +458,3 @@ IMPORTANT:
             commits=commits,
             topics=concept.get("topics", [language])
         )
-
