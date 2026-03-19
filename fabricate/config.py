@@ -87,7 +87,7 @@ class PersonaConfig(BaseModel):
 class FabricateSettings(BaseSettings):
     """Environment-based settings for Fabricate."""
     
-    anthropic_api_key: str = Field(description="Anthropic API key for code generation")
+    gemini_api_key: str = Field(description="Google Gemini API key for code generation")
     github_token: str = Field(description="GitHub personal access token")
     github_username: Optional[str] = Field(default=None, description="GitHub username (auto-detected if not set)")
     work_dir: str = Field(default="./fabricated_repos", description="Directory for temporary repo work")
@@ -207,4 +207,3 @@ PROJECT_CATEGORIES = [
     "dashboard",
     "saas",
 ]
-
