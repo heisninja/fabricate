@@ -30,14 +30,14 @@ class PersonaFabricator:
     
     def __init__(
         self,
-        anthropic_api_key: str,
+        gemini_api_key: str,
         github_token: str,
         github_username: Optional[str] = None,
         work_dir: str = "./fabricated_repos",
         author_name: Optional[str] = None,
         author_email: Optional[str] = None
     ):
-        self.generator = CodeGenerator(anthropic_api_key)
+        self.generator = CodeGenerator(gemini_api_key)
         self.github = GitHubClient(github_token, github_username)
         
         # Get user info for author details
@@ -224,7 +224,7 @@ class PersonaFabricator:
 
 
 def run_fabrication(
-    anthropic_api_key: str,
+    gemini_api_key: str,
     github_token: str,
     languages: list[str],
     num_repos: int,
@@ -242,7 +242,7 @@ def run_fabrication(
     Convenience function to run a complete fabrication.
     
     Args:
-        anthropic_api_key: Anthropic API key for code generation
+        gemini_api_key: Google Gemini API key for code generation
         github_token: GitHub personal access token
         languages: List of programming languages to use
         num_repos: Number of repositories to create
@@ -271,7 +271,7 @@ def run_fabrication(
     )
     
     fabricator = PersonaFabricator(
-        anthropic_api_key=anthropic_api_key,
+        gemini_api_key=gemini_api_key,
         github_token=github_token,
         github_username=github_username,
         work_dir=work_dir
@@ -282,4 +282,3 @@ def run_fabrication(
         push_to_github=push_to_github,
         cleanup_local=cleanup_local
     )
-
