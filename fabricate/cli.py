@@ -34,12 +34,12 @@ def cli():
 
 @cli.command()
 @click.option(
-    "--anthropic-key", "-a",
-    envvar="FABRICATE_ANTHROPIC_API_KEY",
-    help="Anthropic API key (or set FABRICATE_ANTHROPIC_API_KEY)"
+    "--gemini-key", "-g",
+    envvar="FABRICATE_GEMINI_API_KEY",
+    help="Google Gemini API key (or set FABRICATE_GEMINI_API_KEY)"
 )
 @click.option(
-    "--github-token", "-g",
+    "--github-token", "-t",
     envvar="FABRICATE_GITHUB_TOKEN",
     help="GitHub personal access token (or set FABRICATE_GITHUB_TOKEN)"
 )
@@ -99,7 +99,7 @@ def cli():
     help="Show what would be created without actually creating"
 )
 @click.option(
-    "--tech", "-t",
+    "--tech",
     multiple=True,
     help="Technologies to include (e.g., tailwind, prisma, redis, docker)"
 )
@@ -109,7 +109,7 @@ def cli():
     help="Project categories to build (e.g., cli_tool, web_app, saas, dashboard, api)"
 )
 def generate(
-    anthropic_key: Optional[str],
+    gemini_key: Optional[str],
     github_token: Optional[str],
     languages: tuple,
     repos: Optional[int],
@@ -139,16 +139,16 @@ def generate(
         fabricate generate -l python -l javascript -l go -r 10 -d 730
         
         # Specify technologies and project types
-        fabricate generate -l nextjs -t tailwind -t prisma -c saas -c dashboard
+        fabricate generate -l nextjs --tech tailwind --tech prisma -c saas -c dashboard
         
         # Local only (no GitHub push)
         fabricate generate --no-push -r 2
     """
     
     # Validate required credentials
-    if not anthropic_key:
-        console.print("[red]Error: Anthropic API key required[/red]")
-        console.print("Set FABRICATE_ANTHROPIC_API_KEY or use --anthropic-key")
+    if not gemini_key:
+        console.print("[red]Error: Google Gemini API key required[/red]")
+        console.print("Set FABRICATE_GEMINI_API_KEY or use --gemini-key")
         sys.exit(1)
     
     if not github_token and not no_push:
@@ -196,7 +196,7 @@ def generate(
     # Run the fabrication
     try:
         generated = run_fabrication(
-            anthropic_api_key=anthropic_key,
+            gemini_api_key=gemini_key,
             github_token=github_token or "",
             languages=languages_list,
             num_repos=repos,
@@ -342,4 +342,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
